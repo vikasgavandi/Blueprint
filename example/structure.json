@@ -1,0 +1,11 @@
+{
+  "package.json": "",
+  "index.js": "",
+  "src": {
+    "controllers": { "userController.js": "" },
+    "routes": { "index.js": "" },
+    "services": { "dbService.js": "" }
+  },
+  "config": { "db.js": "" },
+  "README.md": ""
+}

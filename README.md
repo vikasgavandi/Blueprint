@@ -5,7 +5,12 @@ Generate project structures from JSON blueprints.
 ## Installation
 
 ```bash
-npm install -g @vikasdev/blueprintr
+npm install -g blueprintr-cli
+```
+
+**Or use directly with npx:**
+```bash
+npx blueprintr-cli <project-name> --file=<structure.json>
 ```
 
 ## Usage

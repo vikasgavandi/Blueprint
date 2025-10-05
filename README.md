@@ -5,7 +5,7 @@ Generate project structures from JSON blueprints.
 ## Installation
 
 ```bash
-npm install -g blueprintr
+npm install -g @vikasdev/blueprintr
 ```
 
 ## Usage

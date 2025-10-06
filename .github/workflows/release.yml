@@ -16,6 +16,9 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -55,8 +58,8 @@ jobs:
           git push origin main
           git push origin "v${{ github.event.inputs.version }}"
       
-      - name: 🚀 Publish to NPM
-        run: npm publish
+      - name: 🚀 Publish to NPM (Trusted Publisher)
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       

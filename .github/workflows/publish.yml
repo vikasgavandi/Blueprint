@@ -44,6 +44,9 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -57,8 +60,8 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
       
-      - name: 🚀 Publish to NPM
-        run: npm publish
+      - name: 🚀 Publish to NPM (Trusted Publisher)
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
@@ -86,6 +89,9 @@ jobs:
   manual-publish:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -108,8 +114,8 @@ jobs:
           node bin/index.js test-output --file=test-structure.json
           test -f test-output/test/file.txt
       
-      - name: 🚀 Publish to NPM
-        run: npm publish
+      - name: 🚀 Publish to NPM (Trusted Publisher)
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       

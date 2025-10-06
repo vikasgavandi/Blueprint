@@ -1,6 +1,6 @@
 {
   "name": "blueprintr-cli",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Establish your structure by utilizing a JSON file or by constructing it interactively via the command line. Ideal for Node.js developers who often create new projects, prototypes, or microservices.",
   "homepage": "https://github.com/vikasgavandi/Blueprint#readme",
   "bugs": {

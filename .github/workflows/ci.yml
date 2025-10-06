@@ -1,0 +1,66 @@
+name: 🔍 CI Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci || npm install
+      
+      - name: 🧪 Test CLI functionality
+        run: |
+          echo '{ "src": { "index.js": "console.log(\"test\");" }, "package.json": "{\"name\":\"test\"}" }' > test.json
+          node bin/index.js test-project --file=test.json
+          test -f test-project/src/index.js
+          test -f test-project/package.json
+          echo "✅ All tests passed"
+      
+      - name: 🔍 Test error handling
+        run: |
+          # Test missing file parameter
+          ! node bin/index.js test-error 2>/dev/null
+          
+          # Test non-existent file
+          ! node bin/index.js test-error --file=nonexistent.json 2>/dev/null
+          
+          # Test invalid JSON
+          echo "invalid json" > invalid.json
+          ! node bin/index.js test-error --file=invalid.json 2>/dev/null
+          
+          echo "✅ Error handling tests passed"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 🔍 Check code style
+        run: |
+          # Basic syntax check
+          node -c bin/index.js
+          echo "✅ Syntax check passed"

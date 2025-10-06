@@ -1,0 +1,95 @@
+name: 🏷️ Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.8)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes'
+        required: false
+        type: string
+        default: 'Bug fixes and improvements'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: 📦 Install dependencies
+        run: npm ci || npm install
+      
+      - name: 🔧 Update version
+        run: |
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          echo "NEW_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+      
+      - name: 🧪 Test before release
+        run: |
+          echo '{ "test": { "app.js": "console.log(\"release test\");" } }' > release-test.json
+          node bin/index.js release-test-output --file=release-test.json
+          test -f release-test-output/test/app.js
+      
+      - name: 📝 Commit version update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json
+          git commit -m "chore: bump version to v${{ github.event.inputs.version }}"
+      
+      - name: 🏷️ Create and push tag
+        run: |
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+          git push origin main
+          git push origin "v${{ github.event.inputs.version }}"
+      
+      - name: 🚀 Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: 📢 Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: 🧱 Blueprintr CLI v${{ github.event.inputs.version }}
+          body: |
+            ## 🎉 What's New in v${{ github.event.inputs.version }}
+            
+            ${{ github.event.inputs.release_notes }}
+            
+            ## 📦 Installation
+            
+            ```bash
+            # Global installation
+            npm install -g blueprintr-cli@${{ github.event.inputs.version }}
+            
+            # Or use with npx
+            npx blueprintr-cli@${{ github.event.inputs.version }} my-project --file=structure.json
+            ```
+            
+            ## 🔗 Links
+            
+            - 📦 [NPM Package](https://www.npmjs.com/package/blueprintr-cli)
+            - 📚 [Documentation](https://github.com/vikasgavandi/Blueprint#readme)
+            - 🐛 [Report Issues](https://github.com/vikasgavandi/Blueprint/issues)
+            
+            ---
+            
+            **Full Changelog**: https://github.com/vikasgavandi/Blueprint/compare/v${{ github.event.inputs.version }}...HEAD
+          draft: false
+          prerelease: false

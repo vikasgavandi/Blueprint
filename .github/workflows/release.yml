@@ -58,8 +58,13 @@ jobs:
           git push origin main
           git push origin "v${{ github.event.inputs.version }}"
       
-      - name: 🚀 Publish to NPM (Trusted Publisher)
-        run: npm publish --provenance --access public
+      - name: 🔐 Configure npm authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm whoami
+      
+      - name: 🚀 Publish to NPM
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       

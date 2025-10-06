@@ -56,12 +56,18 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+          always-auth: true
       
       - name: 📦 Install dependencies
         run: npm install
       
-      - name: 🚀 Publish to NPM (Trusted Publisher)
-        run: npm publish --provenance --access public
+      - name: 🔐 Configure npm authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm whoami
+      
+      - name: 🚀 Publish to NPM
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
@@ -101,6 +107,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+          always-auth: true
       
       - name: 📦 Install dependencies
         run: npm install
@@ -114,8 +121,13 @@ jobs:
           node bin/index.js test-output --file=test-structure.json
           test -f test-output/test/file.txt
       
-      - name: 🚀 Publish to NPM (Trusted Publisher)
-        run: npm publish --provenance --access public
+      - name: 🔐 Configure npm authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm whoami
+      
+      - name: 🚀 Publish to NPM
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
